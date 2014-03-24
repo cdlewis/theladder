@@ -30,7 +30,7 @@ wb = load_workbook( spreadsheet_file )
 ws = wb.get_sheet_by_name( wb.get_sheet_names()[ 0 ] )
 
 heading_filter = set( [ "PLAYER" ] + [ i for i in xrange( 1, 24 ) ] )
-player_filter = set( [ "Chris Lewis", "Sarah Nicholson", "Daniel Bevan", "Kelly O'Dwyer", "Andrew Danos", "James Doolan", "Lachlan McNaughton", "Michael Lewis", "TigerLilyBet", "Adrian Maher", "Emma Nicholson", "Courtney VanTongeren", "Sarah Casey", "Tom O'Dwyer", "Tracy Embleton" ] )
+player_filter = set( [ "Chris Lewis", "Sarah Nicholson", "Daniel Bevan", "Kelly O'Dwyer", "Andrew Danos", "James Doolan", "Lachlan McNaughton", "Michael Lewis", "TigerLilyBet", "Adrian Maher", "Emma Nicholson", "Courtney VanTongeren", "Sarah Casey", "Tom O'Dwyer", "Tracey Embleton" ] )
 
 headings = OrderedDict( [ ( i.value, i ) for i in ws.rows[ 0 ] if i.value in heading_filter ] )
 players = OrderedDict( [ ( i[ 0 ].value, i[ 0 ].address.replace( 'A', '' ) ) for i in ws.rows[ 1: ] if i[ 0 ].value in player_filter ] )
