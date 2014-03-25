@@ -10,47 +10,62 @@ def tag_reduce( array, tag ):
 
 # Very basic checking for correct arguments
 
-if len( sys.argv ) != 3:
-	print "Usage: python %s <ken's excel file> <template>" % sys.argv[ 0 ]
+if len( sys.argv ) != 4:
+	print "Usage: python %s <ken's excel file> <players> <template>" % sys.argv[ 0 ]
 	sys.exit()
 
 spreadsheet_file = sys.argv[ 1 ]
-template_file = sys.argv[ 2 ]
+players_file = sys.argv[ 2 ]
+template_file = sys.argv[ 3 ]
 
 # Abort if required files does not exist
-
-if not os.path.isfile( spreadsheet_file ):
-	print "%s not found" % spreadsheet_file
-	sys.exit()
-if not os.path.isfile( template_file ):
-	print "%s not found" % template_file
-	sys.exit()
+for file in [ spreadsheet_file, players_file, template_file ]:
+	if not os.path.isfile( file ):
+		print "%s not found, exiting..." % file
+		sys.exit()
 
 wb = load_workbook( spreadsheet_file )
 ws = wb.get_sheet_by_name( wb.get_sheet_names()[ 0 ] )
 
 heading_filter = set( [ "PLAYER" ] + [ i for i in xrange( 1, 24 ) ] )
-player_filter = set( [ "Chris Lewis", "Sarah Nicholson", "Daniel Bevan", "Kelly O'Dwyer", "Andrew Danos", "James Doolan", "Lachlan McNaughton", "Michael Lewis", "TigerLilyBet", "Adrian Maher", "Emma Nicholson", "Courtney VanTongeren", "Sarah Casey", "Tom O'Dwyer", "Tracey Embleton" ] )
+
+# Process player file
+raw_players = open( players_file, "r" ).read().split( "\n" )
+player_filter = set()
+zero_players = set()
+for i in raw_players:
+	if i == "": # ignore empty players
+		continue
+	if i[ -1 ] == "0": # detect zero player
+		i = i.replace( " 0", "" )
+		zero_players.add( i )
+	player_filter.add( i )
 
 headings = OrderedDict( [ ( i.value, i ) for i in ws.rows[ 0 ] if i.value in heading_filter ] )
 players = OrderedDict( [ ( i[ 0 ].value, i[ 0 ].address.replace( 'A', '' ) ) for i in ws.rows[ 1: ] if i[ 0 ].value in player_filter ] )
 
 player_vectors = [ [ headings[ j ].offset( row=( int( players[ i ] ) - 1 ) ).value for j in headings ] for i in players ]
 
+# Account for zero players
+for player in player_vectors:
+	if player[ 0 ] not in zero_players:
+		continue
+	for j in xrange( 1, len( player ) ):
+		if player[ j ] is not None:
+			player[ j ] = 9 - player[ j ]
+
+player_vectors.sort( key=lambda x: -1 * sum( [ i for i in x[ 1: ] if i is not None ] ) ) # sort to correctly position zero players
+
 # Cut player vectors to remove NoneTypes
 cut = sum( [ 1 for i in player_vectors[0] if i != None ] )
-player_vectors = [ i[0:cut] for i in player_vectors ]
+player_vectors = [ i[ 0:cut ] for i in player_vectors ]
 
 # Augment player vectors to include explicit rank
 for i in xrange( 0, len( player_vectors ) ):
 	player_vectors[ i ].insert( 0, i + 1 )
 
 # Calculate previous totals to determine if rank has changed
-
-if cut - 2 <= 0: # edge case: round 1
-	last_week = player_vectors
-else:
-	last_week = sorted( player_vectors, key=lambda x: sum( x[ 2:-1] ) )[ ::-1 ]
+last_week = sorted( player_vectors, key=lambda x: -1 * sum( x[ 2:-1] ) )
 
 for i in xrange( 0, len( last_week ) ):
 	curr_rank = last_week[ i ][ 0 ]
