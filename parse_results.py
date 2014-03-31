@@ -1,7 +1,13 @@
+# -*- coding: utf-8 -*-
+
 import sys
 import os
+from jinja2 import Template
 from collections import OrderedDict
 from openpyxl import load_workbook
+
+reload( sys )
+sys.setdefaultencoding( 'UTF-8' )
 
 # Wrap list elements in tag and return as concatenated string
 
@@ -59,26 +65,20 @@ player_vectors.sort( key=lambda x: -1 * sum( [ i for i in x[ 1: ] if i is not No
 # Cut player vectors to remove NoneTypes
 cut = sum( [ 1 for i in player_vectors[0] if i != None ] )
 player_vectors = [ i[ 0:cut ] for i in player_vectors ]
+headings = headings.keys()[ 1:cut ]
+
 
 # Augment player vectors to include explicit rank
-for i in xrange( 0, len( player_vectors ) ):
-	player_vectors[ i ].insert( 0, i + 1 )
+ladder = [ { 'rank': i, \
+             'name': player_vectors[ i ][ 0 ], \
+             'total': sum( player_vectors[ i ][ 1: ] ), \
+             'rounds': player_vectors[ i ][ 1: ] \
+} for i in xrange( 0, len( player_vectors ) ) ]
 
-# Calculate previous totals to determine if rank has changed
-last_week = sorted( player_vectors, key=lambda x: -1 * sum( x[ 2:-1] ) )
+# Calculate last week's rank
+last_week = sorted( [ ( i[ 0 ], sum( i[ 1:-1] ) ) for i in player_vectors ], key=lambda x: -x[1] )
+last_week = dict( [ ( last_week[ i ][ 0 ], i ) for i in xrange( 0, len( last_week ) ) ] )
 
-for i in xrange( 0, len( last_week ) ):
-	curr_rank = last_week[ i ][ 0 ]
-	prev_rank = i + 1
-	player_index = curr_rank - 1 # by definition the index of the player in the current rankings will be their rank - 1. we can exploit this to simplify the process of checking for changes in the rankings from week to week
-
-	if curr_rank > prev_rank:
-		player_vectors[ player_index ].insert( 0, '<span class="glyphicon glyphicon-arrow-up"></span>' )
-	elif curr_rank < prev_rank:
-		player_vectors[ player_index ].insert( 0, '<span class="glyphicon glyphicon-arrow-down"></span>' )	
-	else:
-		player_vectors[ player_index ].insert( 0, '<span class="glyphicon glyphicon-minus"></span>' )
-
-template = open( template_file, 'r' ).read()
-
-print template.replace( "{0}", tag_reduce( [ tag_reduce( [ "", "#", "Player" ] + headings.keys()[ 1:cut ], "th" ) ], "tr" ) ).replace( "{1}", tag_reduce( [ tag_reduce( i, "td" ) for i in player_vectors ], "tr" ) ).replace( "{2}", str( 281 + cut * 29 ) )
+# Render
+template = Template( open( template_file, 'r' ).read() )
+print template.render( locals() )
