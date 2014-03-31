@@ -38,6 +38,9 @@
         .round {
           display: none;
         }
+        .name {
+          width: 200px;
+        }
       }
 		</style>
 	
@@ -64,7 +67,7 @@
       <tr>
         <th></th>
         <th>#</th>
-        <th>Name</th>
+        <th class="name">Name</th>
         {% for h in headings %}
         <th class="round">{{ h }}</th>
         {% endfor %}
