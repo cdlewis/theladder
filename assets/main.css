@@ -1,0 +1,37 @@
+/* identify position changes */
+.glyphicon-arrow-up {
+  color: #008205
+}
+.glyphicon-arrow-down {
+  color: #d70f0f;
+}
+.glyphicon-minus {
+  color: #ffc702;
+}
+
+/* ladder */
+body {
+  padding-bottom: 40px;
+}
+.table {
+  max-width: 1100px;
+  margin: 0 auto;
+}
+th, td {
+  text-align: center;
+  width: 21px;
+}
+tr td:nth-child(3), tr th:nth-child(3) {
+  text-align: left;
+  overflow-x: hidden;
+}
+
+/* hide most stuff for mobile devices */
+@media( max-width: 400px ) {
+  .round {
+    display: none;
+  }
+  .name {
+    width: 200px;
+  }
+}
