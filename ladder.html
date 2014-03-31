@@ -76,7 +76,7 @@
       {% for player in ladder %}
       <tr>
         <td>
-        {% if player[ 'rank' ] > last_week[ player[ 'name' ] ] %}
+        {% if player[ 'rank' ] < last_week[ player[ 'name' ] ] %}
             <span class="glyphicon glyphicon-arrow-up"></span>
         {% elif player[ 'rank' ] == last_week[ player[ 'name' ] ] %}
 		        <span class="glyphicon glyphicon-minus"></span>
