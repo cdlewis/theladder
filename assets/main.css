@@ -25,13 +25,13 @@ tr td:nth-child(3), tr th:nth-child(3) {
   text-align: left;
   overflow-x: hidden;
 }
+.name { /* we got some long names! */
+  width: 200px;
+}
 
 /* hide most stuff for mobile devices */
 @media( max-width: 400px ) {
   .round {
     display: none;
-  }
-  .name {
-    width: 200px;
   }
 }
