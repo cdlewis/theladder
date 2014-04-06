@@ -63,7 +63,8 @@ for player in player_vectors:
 		if player[ j ] is not None:
 			player[ j ] = 9 - player[ j ]
 
-player_vectors.sort( key=lambda x: -1 * sum( [ i for i in x[ 1: ] if i is not None ] ) ) # sort to correctly position zero players
+# sort to correctly position zero players (this requires sorting by score then name)
+player_vectors.sort( key=lambda x: ( -1 * sum( [ i for i in x[ 1: ] if i is not None ] ), x[ 0 ] ) )
 
 # Cut player/header vectors to remove NoneTypes
 
@@ -82,13 +83,11 @@ ladder = [ { 'rank': i, \
 # Calculate last week's rank
 
 # Create least of (name, total) tuples sorted by name
-last_week = sorted( [ ( i[ 0 ], sum( i[ 1:-1] ) ) for i in player_vectors ], key=lambda x: x[ 0 ] )
+last_week = sorted( [ ( i[ 0 ], sum( i[ 1:-1] ) ) for i in player_vectors ], key=lambda x: ( -x[ 1 ], x[ 0 ] ) )
+last_week = dict( [ ( last_week[ i ][ 0 ], i ) for i in xrange( 0, len( last_week ) ) ] ) # Convert to map of name -> rank
 
-# Re-order list by score
-last_week.sort( key=lambda x: -x[ 1 ] )
-
-# Convert to map of name -> rank
-last_week = dict( [ ( last_week[ i ][ 0 ], i ) for i in xrange( 0, len( last_week ) ) ] )
+print last_week
+sys.exit()
 
 # Render
 
