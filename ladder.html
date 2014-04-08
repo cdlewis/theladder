@@ -37,15 +37,15 @@
     {% for player in ladder %}
     <tr>
       <td>
-      {% if player[ 'rank' ] < last_week[ player[ 'name' ] ] %}
+      {% if player[ "rank" ] < player[ "last_rank" ] %}
           <span class="glyphicon glyphicon-arrow-up"></span>
-      {% elif player[ 'rank' ] == last_week[ player[ 'name' ] ] %}
+      {% elif player[ "rank" ] == player[ "last_rank" ] %}
           <span class="glyphicon glyphicon-minus"></span>
       {% else %}
           <span class="glyphicon glyphicon-arrow-down"></span>
       {% endif %}
       </td>
-      <td>{{ player.rank + 1 }}</td>
+      <td>{{ player.rank_pretty }}{{ player.rank }}</td>
       <td>{{ player.name }}</td>
       {% for round in player.rounds %}
       <td class="round">{{ round }}</td>

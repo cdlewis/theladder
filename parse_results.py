@@ -2,17 +2,30 @@
 
 import sys
 import os
-from jinja2 import Template
+import itertools
 from collections import OrderedDict
+from jinja2 import Template
 from openpyxl import load_workbook
 
 reload( sys )
 sys.setdefaultencoding( 'UTF-8' )
 
-# Wrap list elements in tag and return as concatenated string
+# Rank players, those with same group function should have same rank
+def rank( players, sort_key, group, rank_name ):
+    players.sort( key=sort_key ) # order players
 
-def tag_reduce( array, tag ):
-	return reduce( lambda x, y: x + y, map( lambda x: "<{0}>{1}</{0}>".format( tag, str( x ) ), array ) )
+    # create a map of scores to the number of players with that score
+    score_rank = dict( [ ( i[ 0 ], len( list( i[ 1 ] ) ) ) for i in itertools.groupby( players, lambda x: x[ group ] ) ] )
+
+    # assign each player a rank, players with same total receive same rank
+    rank = 1
+    for pos, i in enumerate( players ):
+        if pos is not 0 and i[ group ] != players[ pos - 1 ][ group ]: # change in rank
+            rank += 1
+        players[ pos ][ rank_name ] = rank
+        players[ pos ][ rank_name + "_pretty" ] = "=" if score_rank[ i[ group ] ] > 1 else ""
+
+    return players
 
 # Very basic checking for correct arguments
 
@@ -63,31 +76,23 @@ for player in player_vectors:
 		if player[ j ] is not None:
 			player[ j ] = 9 - player[ j ]
 
-# sort to correctly position zero players (this requires sorting by score then name)
-player_vectors.sort( key=lambda x: ( -1 * sum( [ i for i in x[ 1: ] if i is not None ] ), x[ 0 ] ) )
-
 # Cut player/header vectors to remove NoneTypes
 
-cut = sum( [ 1 for i in player_vectors[0] if i != None ] )
+cut = sum( [ 1 for i in player_vectors[ 0 ] if i != None ] )
 player_vectors = [ i[ 0:cut ] for i in player_vectors ]
 headings = headings.keys()[ 1:cut ]
 
-# Augment player vectors to include explicit rank
+# Create a list of basic player structs
 
-ladder = [ { 'rank': i, \
-             'name': player_vectors[ i ][ 0 ], \
-             'total': sum( player_vectors[ i ][ 1: ] ), \
-             'rounds': player_vectors[ i ][ 1: ] \
-} for i in xrange( 0, len( player_vectors ) ) ]
+ladder = [ { 'name': i[ 0 ], \
+             'total': sum( i[ 1: ] ), \
+             'last_round': sum( i[ 1:-1 ] ), \
+             'rounds': i[ 1: ] } for i in player_vectors ]
 
-# Calculate last week's rank
+# Augment structs with current and previous rank
 
-# Create least of (name, total) tuples sorted by name
-last_week = sorted( [ ( i[ 0 ], sum( i[ 1:-1] ) ) for i in player_vectors ], key=lambda x: ( -x[ 1 ], x[ 0 ] ) )
-last_week = dict( [ ( last_week[ i ][ 0 ], i ) for i in xrange( 0, len( last_week ) ) ] ) # Convert to map of name -> rank
-
-print last_week
-sys.exit()
+ladder = rank( ladder, lambda x: ( -1 * x[ "last_round" ], x[ "name" ] ), "last_round", "last_rank" )
+ladder = rank( ladder, lambda x: ( -1 * x[ "total" ], x[ "name" ] ), "total", "rank" )
 
 # Render
 
