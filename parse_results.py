@@ -18,18 +18,12 @@ def rank( players, sort_key, group, rank_name ):
     score_rank = dict( [ ( i[ 0 ], len( list( i[ 1 ] ) ) ) for i in itertools.groupby( players, lambda x: x[ group ] ) ] )
 
     # Each player has a rank of n + 1, where n is the number of players with 
-    # a higher score. We do this by starting at 1 and incrementing by the
-    # number of players with a given score (people_at_rank) when the score
-    # for a player is not equal to the score of the previous player.
-    rank = 1
-    people_at_rank = 0
+    # a higher score.
     for pos, i in enumerate( players ):
-        if pos is not 0 and i[ group ] != players[ pos - 1 ][ group ]: # change in rank
-            rank += people_at_rank
-            people_at_rank = 1
+        if pos is 0 or i[ group ] != players[ pos - 1][ group ]:
+            players[ pos ][ rank_name ] = pos + 1
         else:
-            people_at_rank += 1
-        players[ pos ][ rank_name ] = rank
+            players[ pos ][ rank_name ] = players[ pos - 1 ][ rank_name ]
         players[ pos ][ rank_name + "_pretty" ] = "=" if score_rank[ i[ group ] ] > 1 else ""
 
     return players
