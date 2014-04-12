@@ -26,7 +26,7 @@ tr td:nth-child(3), tr th:nth-child(3) {
   overflow-x: hidden;
 }
 .name { /* we got some long names! */
-  width: 200px;
+  min-width: 200px;
 }
 
 /* hide most stuff for mobile devices */
