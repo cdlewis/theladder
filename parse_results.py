@@ -69,12 +69,15 @@ players = OrderedDict( [ ( i[ 0 ].value, i[ 0 ].address.replace( 'A', '' ) ) for
 player_vectors = [ [ headings[ j ].offset( row=( int( players[ i ] ) - 1 ) ).value for j in headings ] for i in players ]
 
 # Account for zero players
-
+bye_rounds = [ 8, 9, 10 ]
 for player in player_vectors:
 	if player[ 0 ] not in zero_players:
 		continue
 	for j in xrange( 1, len( player ) ):
 		if player[ j ] is not None:
+                    if j in bye_rounds:
+                        player[ j ] = 6 - player[ j ]
+                    else:
 			player[ j ] = 9 - player[ j ]
 
 # Cut player/header vectors to remove NoneTypes
