@@ -19,7 +19,7 @@ body {
 }
 th, td {
   text-align: center;
-  width: 21px;
+  min-width: 34px;
 }
 tr td:nth-child(3), tr th:nth-child(3) {
   text-align: left;
